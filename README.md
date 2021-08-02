@@ -23,8 +23,8 @@ The SÜZS is designed as a HAT/Piggyboard for a Raspberry Pi. The controller use
 There are several version of this Board on the market, one has to check the Pinout to find a matching one.
 This Board has 19x2 Pins to connect to the SÜZS.
 
-![GitHub Logo](/images/nodemcu_esp32-full.jpg)
-Format: ![ESP32 NodeMCU ](url)
+![ESP32 NODE-MCU](/images/nodemcu_esp32-full.jpg)
+
 
 ## Firmware!
 
