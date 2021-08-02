@@ -3,6 +3,9 @@ The **S**pannungs**Ü**berwachungs**Z**entral**S**teuerungsplatine to control yo
 
 This Board aims to provide a lowe Level control for your 3D Printer. You can connect several Buttons to Turn On/OFF your main Power Supply or the Raspberry Pi.
 
+
+![ESP32 NODE-MCU](/images/PCB-3D.PNG)
+
 ##The Main Features are:
 
 * Raspberry Pi Power Control. 
@@ -18,6 +21,8 @@ This Board aims to provide a lowe Level control for your 3D Printer. You can con
 * Emergency Off Button
 
 ##Hardware
+
+![ESP32 NODE-MCU](/images/PCB.jpg)
 
 The SÜZS is designed as a HAT/Piggyboard for a Raspberry Pi. The controller used is an ESP32 NodeMCU. 
 There are several version of this Board on the market, one has to check the Pinout to find a matching one.
