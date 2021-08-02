@@ -22,7 +22,7 @@ This Board aims to provide a lowe Level control for your 3D Printer. You can con
 
 ##Hardware
 
-![ESP32 NODE-MCU](/images/PCB.jpg)
+![ESP32 NODE-MCU](/images/PCB.PNG)
 
 The SÜZS is designed as a HAT/Piggyboard for a Raspberry Pi. The controller used is an ESP32 NodeMCU. 
 There are several version of this Board on the market, one has to check the Pinout to find a matching one.
