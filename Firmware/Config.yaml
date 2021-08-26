@@ -1,0 +1,424 @@
+#/ User configuration Options /#
+substitutions:
+
+  upper_devicename: "Super Printer"
+  Wifi_SSID: "Internetz"
+  Wifi_Password: "GoGoGadgetInternet1337"
+
+  #Pick your color theme. Numbers in percentages (You can use a HSL Color picker)
+  redColor_val:  "1.0"
+  greenColor_val: "0.4"
+  blueColor_val: "0.0"
+  LED_Chipset: WS2812B                      #Type of LED Strip
+  led_count: "17"                           #number of LEDs connected to the WS218B Port
+
+# Enable logging
+logger:
+  level: VERBOSE
+
+esphome:
+  name: suzs
+  platform: ESP32
+  board: nodemcu-32s
+  on_boot:
+    priority: -600
+    then:
+      - light.turn_off: powerButton_LED # Turn off the LEDS on boot
+      - light.turn_off: LightButton_LED # Turn off the LEDS on boot
+      - light.turn_off: chamber_light   # Turn off the LEDS on boot
+      - switch.turn_off: raspi_power    # Disable raspi power on boot
+      - switch.turn_off: Emergency_SW   # reset E-Stop on boot
+
+# Enable Home Assistant API
+api:
+
+ota:
+  password: "8b6f86898cf5b2142759ba8af93b0718"
+
+wifi:
+  ssid: ${Wifi_SSID}
+  password: ${Wifi_Password}
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${upper_devicename} Fallback Hotspot
+    password: "ZentralSteuerungsplatine"
+
+captive_portal:
+
+globals:
+   - id: redColor_var
+     type: float
+     restore_value: no
+     initial_value: ${redColor_val}
+
+   - id: greenColor_var
+     type: float
+     restore_value: no
+     initial_value: ${greenColor_val}    
+
+   - id: blueColor_var
+     type: float
+     restore_value: no
+     initial_value: ${blueColor_val}  
+
+output:
+
+#//Left Side of the ESP //#
+
+#NTC (GPIO36)             ->  See Sensors
+#Input Voltage (GPIO39)   -> See Sensors
+#PI_R (GPIO34)            -> Not used yet
+#PI_G (GPIO35)            -> Not used yet
+#PI_B (GPIO32)            -> Not used yet
+
+  - platform: gpio
+    id: Pi_Shutdown_Pin
+    pin: GPIO33    
+
+  - platform: gpio
+    id: Pi_eStop_pin
+    pin: GPIO26   
+
+#SCL (GPIO27)             -> Not used yet
+#SDA (GPIO14)             -> Not used yet
+
+ # - platform: gpio
+ #   id: LED_Power_Pin
+ #   pin: GPIO12
+
+  - platform: gpio
+    id: Raspi_Power_Pin
+    pin: GPIO13        
+
+#// Right side of the ESP //#
+
+#FAN|Pump_PWM (GPIO23)    -> See PWM (LEDC)
+
+  - platform: gpio
+    id: Fan_Pump_Pin
+    pin: GPIO22   
+
+#Power_SW (GPIO21)        -> See Binary Sensor
+
+  - platform: ledc
+    id: RGB2_PIN_B
+    pin: GPIO019
+
+  - platform: ledc
+    id: RGB2_PIN_G
+    pin: GPIO018
+
+  - platform: ledc
+    id: RGB2_PIN_R
+    pin: GPIO05
+    
+  - platform: ledc
+    id: RGB1_PIN_B
+    pin: GPIO017
+
+  - platform: ledc
+    id: RGB1_PIN_G
+    pin: GPIO016
+
+  - platform: ledc
+    id: RGB1_PIN_R
+    pin: GPIO04
+
+    
+
+#Emergeny_SW (GPIO0)    -> See Binary Sensor
+#WS2812B_Pin (GPIO02)   -> See LED
+#Light_SW (GPI15)       -> See Binary Sensor      
+
+# Example configuration entry
+power_supply:
+  - id: LED_power_supply
+    pin: GPIO12
+
+binary_sensor:
+
+  - platform: gpio
+    pin:
+      number: GPIO25
+    id: Pi_PowerStatus
+
+  - platform: gpio #Power Button
+    pin:
+      number: GPIO21
+      inverted: true
+    id: powerButton
+    on_click:
+      - min_length: 100ms
+        max_length: 500ms
+        then:
+          - logger.log: "Short press -> Toggle Power"
+          - switch.toggle: pi_power_request
+          - script.execute: power_handler
+
+      - min_length: 2000ms
+        then:
+          - logger.log: "Long Press -> Force off"
+          - script.stop: power_handler
+          - switch.turn_off: raspi_power
+          - light.turn_on:
+                  id: powerButton_LED
+                  effect: "Fast Pulse"
+                  red: ${redColor_val}
+                  green: ${greenColor_val}
+                  blue: ${blueColor_val}  
+          - delay: 3s
+          - light.turn_off: powerButton_LED             
+
+  - platform: gpio #Light Button
+    pin:
+      number: GPIO15
+      inverted: true
+    id: lightButton
+    on_click:
+      - min_length: 100ms
+        max_length: 500ms
+        then:
+          - if:
+              condition: 
+                - light.is_on: chamber_light
+              then:
+                - light.turn_off: chamber_light
+                - light.turn_off: LightButton_LED
+              else:
+                - light.turn_on: chamber_light
+                - light.turn_on: LightButton_LED
+
+
+
+sensor:
+
+  - platform: ntc
+    sensor: NTC_reading
+    calibration:
+      b_constant: 3650
+      reference_temperature: 25°C
+      reference_resistance: 10kOhm
+    name: ${upper_devicename} Compartment Temp.
+
+  - platform: resistance
+    sensor: onboard_NTC
+    configuration: DOWNSTREAM
+    resistor: 10kOhm
+    id: NTC_reading
+
+  - platform: adc
+    id: onboard_NTC
+    pin: GPIO36
+    update_interval: 5s
+    filters:
+      - multiply: 1.3 #The Board uses a 1:2 Voltage Divider and also the ESP needs some adjustments
+
+  - platform: adc
+    pin: GPIO39
+    name: Raspberry Input Voltage
+    attenuation: 11db
+    update_interval: 5s
+    filters:
+      - multiply: 1.8 #There  is something fishy with the ADC...
+
+  - platform: wifi_signal
+    update_interval: 30s
+    id: rssi_sensor
+    
+  - platform: template
+    name: "${upper_devicename} WIFI"
+    unit_of_measurement: "%"
+    accuracy_decimals: 0
+    icon: "mdi:wifi"
+    update_interval: 30s
+    lambda: |-
+      int quality;
+      const int rssi = id(rssi_sensor).state;
+      if(rssi <= -100){quality = 0;}
+      else if (rssi >= -50){quality = 100;}
+      else{quality = 2 * (rssi + 100);}
+      return quality;
+
+switch:
+  - platform: gpio
+    pin: GPIO13
+    id: raspi_power
+  
+  - platform: gpio
+    pin:
+      number: GPIO0
+      inverted: true
+    name: ${upper_devicename} E-Stop
+    id: Emergency_SW
+    icon: mdi:stop-circle
+    on_turn_on: #signalize to the pi that the emergency button has been pressed
+      - output.turn_on: Pi_eStop_pin
+    on_turn_off:
+      - output.turn_off: Pi_eStop_pin
+
+  - platform: template #used as a dummy variable
+    id: pi_power_request
+    name: ${upper_devicename} Power
+    icon: mdi:printer-3d-nozzle
+    optimistic: true
+    on_turn_on:
+          - switch.turn_on: pi_power_request
+          - script.execute: power_handler
+    on_turn_off:
+          - switch.turn_off: pi_power_request
+          - script.execute: power_handler
+
+  - platform: template #used as a dummy variable
+    id: pi_power_on
+    optimistic: true    
+
+wled:
+
+light:
+  - platform: rgb
+    id: powerButton_LED
+    red: RGB1_PIN_R
+    green: RGB1_PIN_G
+    blue: RGB1_PIN_B
+    effects:
+      - pulse:
+      - pulse:
+          name: "Fast Pulse"
+          transition_length: 0.5s
+          update_interval: 0.5s
+      - pulse:
+          name: "Slow Pulse"
+          # transition_length: 1s      # defaults to 1s
+          update_interval: 1s
+
+  - platform: rgb
+    id: LightButton_LED
+    red: RGB2_PIN_R
+    green: RGB2_PIN_G
+    blue: RGB2_PIN_B
+    on_turn_on:
+      - light.turn_on: LightButton_LED
+    on_turn_off:
+      - light.turn_off: LightButton_LED
+    effects:
+      - pulse:
+      - pulse:
+          name: "Fast Pulse"
+          transition_length: 0.5s
+          update_interval: 0.5s
+      - pulse:
+          name: "Slow Pulse"
+          # transition_length: 1s      # defaults to 1s
+          update_interval: 1s          
+    
+  - platform: fastled_clockless
+    id: chamber_light
+    chipset: ${LED_Chipset}
+    pin: GPIO2
+    num_leds: $led_count
+    rgb_order: GRB
+    name: ${upper_devicename} Chamber Light
+    power_supply: LED_power_supply
+    effects:
+      - pulse:
+      - pulse:
+          name: "Fast Pulse"
+          transition_length: 0.5s
+          update_interval: 0.5s
+      - pulse: 
+          name: "Slow Pulse"
+          # transition_length: 2s
+          update_interval: 1s
+      - addressable_flicker:
+      - addressable_flicker:
+          name: Flicker Effect With Custom Values
+          update_interval: 16ms
+          intensity: 5% 
+      - wled: #does not work. Shows up as Effect but is not recognized by the App.TBD.
+          #port: 21324
+
+
+#// Scripts and functions //#    
+script:
+  - id: power_handler
+    mode: single
+    then:
+      if:
+            condition:
+              - switch.is_on: pi_power_request  #Check if the PI is requested to be started or shut down 
+            then:
+              - logger.log: "Pi requested to boot -> go!"
+              - light.turn_on: 
+                  id: powerButton_LED
+                  effect: "Pulse"
+                  #red: ${redColor_val}
+                  red: !lambda 'return id(redColor_var);' 
+                  green: !lambda 'return id(greenColor_var);'
+                  blue: !lambda 'return id(blueColor_var);'
+              - output.turn_off: Pi_Shutdown_Pin #Clear the Signailisation to the Pi to shut down.
+              - switch.turn_on: raspi_power
+              - delay: 3s
+              - light.turn_on: 
+                  id: powerButton_LED
+                  effect: "None"
+                  red: !lambda 'return id(redColor_var);'
+                  green: !lambda 'return id(greenColor_var);'
+                  blue: !lambda 'return id(blueColor_var);'
+              - logger.log: "Pi started!"
+            else: 
+              - logger.log: "Pi requested to go OFF -> go!"
+              - light.turn_on:
+                  id: powerButton_LED
+                  effect: "Fast Pulse"
+                  red: !lambda 'return id(redColor_var);'
+                  green: !lambda 'return id(greenColor_var);'
+                  blue: !lambda 'return id(blueColor_var);'
+              - output.turn_on: Pi_Shutdown_Pin #Clear the Signailisation to the Pi to shut down.
+              - delay: 3s
+              - switch.turn_off: raspi_power
+              - light.turn_off: powerButton_LED
+              - logger.log: "Pi shut down!"
+
+  - id: color_handler
+    mode: single
+    then:
+      if:
+          condition:
+            or:
+            - lambda: return id(redColor_var) != id(chamber_light).remote_values.get_red();
+            - lambda: return id(greenColor_var) != id(chamber_light).remote_values.get_green();
+            - lambda: return id(blueColor_var) != id(chamber_light).remote_values.get_blue();
+          then:
+            - logger.log: "Color Changed!"
+            - lambda: id(redColor_var) = id(chamber_light).remote_values.get_red();
+            - lambda: id(greenColor_var) = id(chamber_light).remote_values.get_green();
+            - lambda: id(blueColor_var) = id(chamber_light).remote_values.get_blue();
+            - if:
+                condition:
+                  or:
+                    - light.is_off: powerButton_LED
+                    #- lambda: return id(powerButton_LED).get_active_effect_()->get_name() == "None"; # See if any effect is active
+                then:
+                    - light.turn_on:
+                        id: powerButton_LED
+                        red: !lambda 'return id(redColor_var);'
+                        green: !lambda 'return id(greenColor_var);'
+                        blue: !lambda 'return id(blueColor_var);'
+            - if:
+                condition:
+                  or:
+                    - light.is_off: LightButton_LED
+                    #- lambda: return id(LightButton_LED).get_active_effect_()->get_name() == "None";
+                then:
+                    - light.turn_on:
+                        id: powerButton_LED
+                        red: !lambda 'return id(redColor_var);'
+                        green: !lambda 'return id(greenColor_var);'
+                        blue: !lambda 'return id(blueColor_var);'                     
+
+
+interval:
+  - interval: 300ms
+    then:
+      - script.execute: color_handler

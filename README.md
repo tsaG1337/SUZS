@@ -1,26 +1,30 @@
 # SÜZS
 The **S**pannungs**Ü**berwachungs**Z**entral**S**teuerungsplatine to control your 3D Printer.
 
-This Board aims to provide a lowe Level control for your 3D Printer. You can connect several Buttons to Turn On/OFF your main Power Supply or the Raspberry Pi.
+The SUZS allows to connect buttons (ON/OFF, Light) and provides a possibility to control your Raspberry/24V Supply.
+This is currently a WIP. Although first prototypes are up and running, there might be something that will be changed/added in the future.
 
+![Raspberry Assembly](/images/Raspberry_assembly.JPG)
 
-![ESP32 NODE-MCU](/images/PCB-3D.PNG)
+## Main Features:
 
-##The Main Features are:
-
-* Raspberry Pi Power Control. 
-  * Safely Power your Raspberry Pi with the touch of a button. One Press Powers it On, another Press sends the Shutdown command to savely shut down your Pi.
+* Implementation into Home-Assist
+  * Control the Power of your printer over the net or with your favourite voice assistant (Siri, Alexa etc.)*
+* Fundamental 3D Printer Control.
+  * Support for a Print Chamber heater and Fan combination.
+  * Safely Power your Raspberry Pi with the touch of a button. Regardless of whether its the physical button on your printer itself, or over the WEB-IDE.
+  * Once you are done, let the SUZS send the Shutdown command to safely shut down your Pi and cut the power (hey, you are doing something good for the environment!).
   * Raspberry Input Voltage Check.
   * Raspberry Pi UART to Control Board Header (no need to use the bulky USB cable anymore)
-* WLED Implementation to control the Power of your Printer via Smart Home (Alexa, Google Home or Apple Homekit)
-* W2812B / Neopixel Levelshifter to set the special mood for you and your printer..
-* LED controll can be bridged from Klipper control.
-* Control for external/electronics Bay Fan / Pump (including Power PWM or PWM Signal). Normally supplied by 5V, optionally up to 25V possible.
+* W2812B / Neopixel Levelshifter to set the special mood for you and your printer including WLED (TBD)..
+* LED controll can be bridged from Klipper control to match the color theme your printing stats (TBD)
+* Control for external/electronics compartment Fan / Pump (including Power PWM or PWM Signal). Normally supplied by 5V, optionally up to 25V.
 * Air Temp Sensor
 * Interface for 2 RGB Buttons (Mainly used for Power and Lighting)
 * Emergency Off Button
+* Wattmeter input: always see how much power have drawn during printing by connecting an external power counter.*
 
-##Hardware
+## Hardware
 
 ![ESP32 NODE-MCU](/images/PCB.PNG)
 
@@ -31,6 +35,26 @@ This Board has 19x2 Pins to connect to the SÜZS.
 ![ESP32 NODE-MCU](/images/nodemcu_esp32-full.jpg)
 
 
-## Firmware!
+## Software
 
-The Firmware will be based on the WLED Project including some realtime GPIO checks for Power Monitoring and Raspberry Status control (TBD).
+The Firmware will be based on the ESPHome Project including some realtime GPIO checks for Power Monitoring and Raspberry Status control.
+You are able to Monitor the basics via Home-Assist and also hit the E-Stop button from the warmth of your chair.
+
+![Home Assist](/images/home_assist.PNG)
+
+Pick your favourite Color in the web interface to set the theme for your printer. 
+The color picked for the printing Chamber lighting, sets the theme for all RGB LEDs connected. 
+
+![Color Picker](/images/HAS_Color_picker.PNG)
+
+## Changelog:
+
+### Hardware Rev 0.2
+
+- Added 2 NTC Sensors (Chamber heater output and Chamber heater)
+- Discrete RGB Outputs (Power and Light Button) are now designed for common Cathode LEDs
+- Added Filtering capacitors to the 5V Rail (the RGB Strip created some noise that lead to a reboot of the ESP)
+- Added Wattmeter Pulse input.
+- Added Protection diode for AC mains Relais (actually not needed as it is controlled on the high side, but you never know...)
+- ~~removed external Pullups for the Switches and enabled the ESP internal ones.~~
+- removed the RGB connection between RPi and ESP for the NTC and Wattmeter (RGB shall be handled via the I2C connection lateron)
