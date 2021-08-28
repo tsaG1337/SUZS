@@ -22,7 +22,7 @@ This is currently a WIP. Although first prototypes are up and running, there mig
 * Air Temp Sensor
 * Interface for 2 RGB Buttons (Mainly used for Power and Lighting)
 * Emergency Off Button
-* Wattmeter input: always see how much power have drawn during printing by connecting an external power counter.*
+* Wattmeter input: See how much power you have drawn during printing by connecting an external power counter.
 
 ## Hardware
 
@@ -45,7 +45,8 @@ You are able to Monitor the basics via Home-Assist and also hit the E-Stop butto
 Pick your favourite Color in the web interface to set the theme for your printer. 
 The color picked for the printing Chamber lighting, sets the theme for all RGB LEDs connected. 
 
-![Color Picker](/images/HAS_Color_picker.png)
+
+<img src="/images/HAS_Color_picker.png" width="60%">
 
 ## Changelog:
 
