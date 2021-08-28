@@ -2,6 +2,7 @@
 The **S**pannungs**Ü**berwachungs**Z**entral**S**teuerungsplatine to control your 3D Printer.
 
 The SUZS gives you control over your 3D Printer instantly without the need to power your Raspberry or your MCU, either via pushbuttons or over network.
+Need to switch on the lights to watch your print via webcam? No problem!
 This is currently a WIP. Although first prototypes are up and running, there might be some things that will be changed/added in the future.
 
 <p align="center">
