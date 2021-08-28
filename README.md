@@ -4,7 +4,9 @@ The **S**pannungs**Ü**berwachungs**Z**entral**S**teuerungsplatine to control yo
 The SUZS gives you control over your 3D Printer instantly without the need to power your Raspberry or your MCU, either via pushbuttons or over network.
 This is currently a WIP. Although first prototypes are up and running, there might be some things that will be changed/added in the future.
 
+<p align="center">
 ![Raspberry Assembly](/images/Raspberry_assembly.JPG)
+</p>
 
 ## Main Features:
 
@@ -26,13 +28,17 @@ This is currently a WIP. Although first prototypes are up and running, there mig
 
 ## Hardware
 
-![ESP32 NODE-MCU](/images/PCB.PNG)
+<p align="center">
+![SUZS PCB](/images/PCB.PNG)
+</p>
 
 The SÜZS is designed as a HAT/Piggyboard for a Raspberry Pi. The controller used is an ESP32 NodeMCU. 
 There are several version of this Board on the market, one has to check the Pinout to find a matching one.
 This Board has 19x2 Pins to connect to the SÜZS.
 
-![ESP32 NODE-MCU](/images/nodemcu_esp32-full.jpg)
+<p align="center">
+<img src="/images/nodemcu_esp32-full.jpg" width="60%">
+</p>
 
 
 ## Software
@@ -40,13 +46,17 @@ This Board has 19x2 Pins to connect to the SÜZS.
 The Firmware will be based on the ESPHome Project including some realtime GPIO checks for Power Monitoring and Raspberry Status control.
 You are able to Monitor the basics via Home-Assist and also hit the E-Stop button from the warmth of your chair.
 
-![Home Assist](/images/home_assist.png)
+<p align="center">
+<img src="/images/home_assist.png" width="60%">
+</p>
 
 Pick your favourite Color in the web interface to set the theme for your printer. 
 The color picked for the printing Chamber lighting, sets the theme for all RGB LEDs connected. 
 
 
+<p align="center">
 <img src="/images/HAS_Color_picker.png" width="60%">
+</p>
 
 ## Changelog:
 
