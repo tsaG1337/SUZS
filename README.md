@@ -5,9 +5,9 @@ The SUZS gives you control over your 3D Printer instantly without the need to po
 Need to switch on the lights to watch your print via webcam? No problem!
 This is currently a WIP. Although first prototypes are up and running, there might be some things that will be changed/added in the future.
 
-<p align="center">
+
 ![Raspberry Assembly](/images/Raspberry_assembly.JPG)
-</p>
+
 
 ## Main Features:
 
@@ -29,9 +29,9 @@ This is currently a WIP. Although first prototypes are up and running, there mig
 
 ## Hardware
 
-<p align="center">
+
 ![SUZS PCB](/images/PCB.PNG)
-</p>
+
 
 The SÜZS is designed as a HAT/Piggyboard for a Raspberry Pi. The controller used is an ESP32 NodeMCU. 
 There are several version of this Board on the market, one has to check the Pinout to find a matching one.
