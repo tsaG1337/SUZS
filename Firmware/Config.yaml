@@ -2,8 +2,8 @@
 substitutions:
 
   upper_devicename: "Super Printer"
-  Wifi_SSID: "Internetz"
-  Wifi_Password: "GoGoGadgetInternet1337"
+  Wifi_SSID: "SSID"
+  Wifi_Password: "Password"
 
   #Pick your color theme. Numbers in percentages (You can use a HSL Color picker)
   redColor_val:  "1.0"
